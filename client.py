@@ -3,27 +3,26 @@ import threading
 import tkinter as tk
 from tkinter import scrolledtext, messagebox
 
-# Setup socket UDP
+# setup socket UDP
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 def send_message():
     message = message_input.get()
     if message.strip().upper() == "EXIT":
-        # Notify server and other clients that this user is leaving
         exit_message = f"{name} has left the chat."
         client.sendto(exit_message.encode(), (server_ip, server_port))
         
-        # Display exit message locally and close the GUI
+        # display pesan keluar jika keluar dari GUI
         chat_window.insert(tk.END, "Exiting chat...\n")
         chat_window.yview(tk.END)
         client.close()
-        root.quit()  # Close GUI
+        root.quit()  # close GUI
     else:
-        # Send normal message to server
+        # kirim normal message ke server
         full_message = f'{name}: "{message}"'
         client.sendto(full_message.encode(), (server_ip, server_port))
         chat_window.insert(tk.END, f"{full_message}\n")
-        chat_window.yview(tk.END)  # Scroll to the end
+        chat_window.yview(tk.END)  
         message_input.delete(0, tk.END)
 
 def receive():
@@ -32,12 +31,10 @@ def receive():
             message, _ = client.recvfrom(1024)
             decoded_message = message.decode()
 
-            # If this client receives an exit notification, display it
             if decoded_message.endswith("has left the chat."):
                 chat_window.insert(tk.END, f"{decoded_message}\n")
                 chat_window.yview(tk.END)
             else:
-                # Display other messages normally
                 chat_window.insert(tk.END, f"{decoded_message}\n")
                 chat_window.yview(tk.END)
         except Exception as e:
@@ -45,7 +42,7 @@ def receive():
             break
 
     client.close()
-    root.quit()  # Ensure GUI closes when the loop ends
+    root.quit()  
 
 def login():
     global server_ip, server_port, name
@@ -59,10 +56,10 @@ def login():
         return
 
     try:
-        # Send login request to server
+        # kirim login request ke server
         client.sendto(f"SIGNUP_TAG:{name}:{password}".encode(), (server_ip, server_port))
         
-        # Receive response from server
+        # menerima response dari server
         response, _ = client.recvfrom(1024)
         response_decoded = response.decode()
 
@@ -81,7 +78,7 @@ def login():
         messagebox.showerror("Connection Error", f"Unable to connect: {e}")
         return
 
-# Setup GUI for login
+# setup GUI untuk login
 root = tk.Tk()
 root.title("Client Chat")
 root.geometry("600x400")
@@ -114,7 +111,7 @@ password_input.pack(padx=10, pady=5)
 login_button = tk.Button(login_frame, text="Login", command=login)
 login_button.pack(padx=10, pady=20)
 
-# Chat window setup
+# chat window setup
 chat_window = scrolledtext.ScrolledText(chat_frame, wrap=tk.WORD, width=70, height=15)
 chat_window.pack(padx=10, pady=10)
 

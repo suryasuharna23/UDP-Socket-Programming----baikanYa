@@ -3,9 +3,9 @@ import threading
 import queue
 import tkinter as tk
 from tkinter import scrolledtext, messagebox, font
-import re  # For validating IP addresses
+import re  # validasi IP addresses
 
-# Queue for storing messages
+# queue simpan pesan
 messages = queue.Queue()
 clients = {}
 
@@ -13,12 +13,11 @@ clients = {}
 server_gui = tk.Tk()
 server_gui.title("Server Chat")
 
-# Set font styles
 default_font = font.Font(family="Arial", size=12)
 log_area = scrolledtext.ScrolledText(server_gui, wrap=tk.WORD, width=100, height=15, font=default_font)
 log_area.pack(padx=10, pady=10)
 
-# Entry for IP and port
+# Entry untuk IP dan port
 ip_label = tk.Label(server_gui, text="Server IP (0.0.0.0 for all interfaces):")
 ip_label.pack(padx=5, pady=5)
 ip_entry = tk.Entry(server_gui)
@@ -29,15 +28,15 @@ port_label.pack(padx=5, pady=5)
 port_entry = tk.Entry(server_gui)
 port_entry.pack(padx=5, pady=5)
 
-# Entry for Password
+# entry untuk Password
 password_label = tk.Label(server_gui, text="Server Password:")
 password_label.pack(padx=5, pady=5)
 password_entry = tk.Entry(server_gui, show='*')
 password_entry.pack(padx=5, pady=5)
 
 server = None
-is_server_running = False  # Flag to check server status
-threads = []  # List of running threads
+is_server_running = False  
+threads = []  
 
 def validate_ip(ip):
     """Validate the IP address format."""
@@ -59,7 +58,7 @@ def start_server():
     server_port = port_entry.get()
     PASSWORD = password_entry.get()
 
-    # Validate input
+    # validasi input
     if not server_ip or not server_port or not PASSWORD:
         messagebox.showerror("Input Error", "All fields (IP, Port, Password) are required!")
         return
@@ -100,7 +99,6 @@ def start_server():
                     log_area.insert(tk.END, f"Message from {clients.get(addr, addr)}: {message_decoded}\n")
                     log_area.yview(tk.END)
 
-                    # Check if the client has logged in
                     if addr not in clients:
                         if message_decoded.startswith("SIGNUP_TAG:"):
                             data = message_decoded.split(":")
@@ -114,7 +112,7 @@ def start_server():
                                         log_area.insert(tk.END, f"New client joined: {name} from {addr}\n")
                                         log_area.yview(tk.END)
 
-                                        # Broadcast that a new client has joined
+                                        # Broadcast ketika client baru join
                                         for client_addr in clients:
                                             if client_addr != addr:
                                                 server.sendto(f"{name} has joined the chat.".encode(), client_addr)
@@ -129,9 +127,9 @@ def start_server():
                         else:
                             server.sendto("You need to login first.".encode(), addr)
                     else:
-                        # Broadcast the message to all clients
+                        # Broadcast ke semua clients
                         for client_addr in list(clients):
-                            if client_addr != addr:  # Don't send back to the sender
+                            if client_addr != addr:  
                                 try:
                                     server.sendto(message, client_addr)
                                 except:
@@ -158,23 +156,22 @@ def stop_server():
     global server, is_server_running, threads
     if server:
         is_server_running = False
-        server.close()  # Close the server socket
+        server.close()  # Close server socket
         log_area.insert(tk.END, "Server stopped.\n")
         log_area.yview(tk.END)
 
-        # Clean up the running threads
         for thread in threads:
             if thread.is_alive():
-                thread.join()  # Wait for threads to finish
-        threads.clear()  # Clear the threads list
+                thread.join()  
+        threads.clear()  # clear threads list
 
 def close_window():
     """Function to close the GUI window."""
     if messagebox.askyesno("Close Window", "Are you sure you want to close the application?"):
         stop_server()
-        server_gui.destroy()  # Close the GUI after stopping the server
+        server_gui.destroy()  # Close the GUI setelah menghentikan GUI server
 
-# Create buttons for starting, stopping, and closing the server
+# buttons starting, stopping, dan closing pada server
 start_button = tk.Button(server_gui, text="Start Server", command=start_server, bg='green', fg='white')
 start_button.pack(padx=10, pady=10)
 
@@ -184,5 +181,5 @@ stop_button.pack(padx=10, pady=10)
 close_button = tk.Button(server_gui, text="Close Window", command=close_window, bg='red', fg='white')
 close_button.pack(padx=10, pady=10)
 
-server_gui.protocol("WM_DELETE_WINDOW", close_window)  # Handle window close button
+server_gui.protocol("WM_DELETE_WINDOW", close_window) 
 server_gui.mainloop()
