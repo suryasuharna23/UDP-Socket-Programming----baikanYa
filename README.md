@@ -1,3 +1,5 @@
+Proyek ini saya kembangkan bersama teman baik saya, Muhammad Zidni Alkindi (18223071)
+
 **README UDP SOCKET PROGRAMMING**
 
 [ PROGRAM CHAT UDP SOCKET PROGRAMMING ]
